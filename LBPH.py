@@ -1,62 +1,56 @@
 # CS 542: Machine Learning
 # Final Project: Face Detection and Recongnition
-# Part 1: LBPH
+# Part 1: Image Processing to Pattern
 
-import matplotlib.pyplot as plt  # plt - for showing image
-import matplotlib.image as mping  # mpimg - for reading image
-import numpy
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
 
-class Image():
-    def __init__(self, imgName):
-        self.name = imgName
-        self.image = mping.imread(imgName)
 
-    def shownImage(self, axis = False, gray = False):
-        plt.imshow(self.image)
-        if axis:  # Showing with axis or not
-            plt.axis('on')
-        else:
-            plt.axis('off')
-        if gray:
-            plt.imshow(self.image, cmap =plt.get_cmap('gray'))
+class Image:
+    def __init__(self):
+        self.IMG_LEN = 0
+        self.IMG_WID = 0
+        self.image = []
+        self.img_lbp = []
+
+    def _img_show(self):
+        plt.imshow(self.img_lbp, cmap=plt.get_cmap('gray'))
         plt.show()
 
-    def rgbToGray(self): # Transform the RBG picture into Gray Picture
-        self.image = numpy.dot(self.image[..., :3], [0.2989, 0.5870, 0.1140])
+    def _img_pre(self):
+        img_1d = []
+        img_lbp_1d = []
+        img_init_ind = np.array([-self.IMG_WID-1, -self.IMG_WID, -self.IMG_WID+1, -1, 1, self.IMG_WID-1, self.IMG_WID, self.IMG_WID+1])
+        # image preprocess
+        for row in self.image:
+            row_list = list(row)
+            img_1d += row_list
+        for item_ind in range(self.IMG_WID-1, len(img_1d)-self.IMG_WID-1):
+            bin_num = 0
+            for ind in img_init_ind:
+                if img_1d[item_ind+ind] > img_1d[item_ind]:
+                    bin_num = bin_num * 2 + 1
+                else:
+                    bin_num = bin_num * 2
+            img_lbp_1d.append(bin_num)
+        # reshape image
+        self.img_lbp = np.reshape(img_lbp_1d, (int(len(img_lbp_1d)/self.IMG_WID), self.IMG_WID))
+        # show LBP
+        self._img_show()
 
-class LBPH(Image):
-    def __init__(self, imgName):
-        super(LBPH, self).__init__(imgName)
-        self.N = len(self.image)
-        self.M = len(self.image[0])
-        pass
-
-    def doLBP(self):
-        LBPimg = []
-        for i in range(1, self.N-1):
-            LBPimg.append([])
-            for j in range(1, self.M-1):
-                slideWimdowValue = 0
-                for wrow in range(1, -2, -1):
-                    for wcol in range(1, -2, -1):
-                        if wrow != 0 and wcol != 0:
-                            if self.image[i+wrow][j+wcol] > self.image[i][j]:
-                                slideWimdowValue = slideWimdowValue * 2 + 1
-                            else:
-                                slideWimdowValue = slideWimdowValue * 2
-                LBPimg[i-1].append(slideWimdowValue)
-        return LBPimg
-
+    def pattern_return(self, img_name):
+        # parameter initial
+        self.image = mpimg.imread(img_name)
+        self.image = np.dot(self.image[..., :3], [0.2989, 0.5870, 0.1140])
+        self.IMG_LEN = len(self.image)
+        self.IMG_WID = len(self.image[0])
+        self._img_pre()
 
 
 if __name__ == "__main__":
-    img = LBPH("3-160P4111639.jpg")
-    #img.shownImage()
-    img.rgbToGray()
-    #img.shownImage(gray = True) # Shown gray
-    LBP = img.doLBP()
-    plt.imshow(LBP, cmap = plt.get_cmap('gray'))
-    plt.show()
+    img = Image()
+    img.pattern_return('000001.jpg')
 
 
 
