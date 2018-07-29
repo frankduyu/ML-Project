@@ -5,6 +5,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
+from scipy import stats
 
 
 class Image:
@@ -48,7 +49,14 @@ class Image:
                 index = (j // sep_wid) + (i // sep_len) * k
                 index = index * 256 + int(self.img_lbp[i][j])
                 hist[index] = hist[index] + 1
+        # for ind in range(0,len(hist),256):
+        #     hist[ind] = 0
         self.pattern = hist
+
+    def _normalize(self):
+        max_item = max(self.pattern)
+        for ind in range(len(self.pattern)):
+            self.pattern[ind] = self.pattern[ind]/max_item
 
     def pattern_return(self, img_name):
         # parameter initial
@@ -58,13 +66,33 @@ class Image:
         self.IMG_WID = len(self.image[0])
         self._img_pre()
         self._hist_pattern()
+        # self._normalize()
         return self.pattern
 
 
 if __name__ == "__main__":
     img = Image()
-    img_name = '000001.jpg'
-    pattern = img.pattern_return(img_name)
+    img_name1 = 'obama_4.png'
+    img_name2 = 'dog_1.png'
+    pattern1 = img.pattern_return('face_dataset/'+img_name1)
+    pattern2 = img.pattern_return('face_dataset/'+img_name2)
+    # p_coef
+    p_coef = np.cov(pattern1,pattern2)[0][1]/(np.std(pattern1)*np.std(pattern2))
+    # t_test
+    t_test = stats.ttest_ind(pattern1,pattern2)
+    # distance
+    diff = np.array(pattern1)-np.array(pattern2)
+    dist = sum(diff**2)
+    # # chi-square
+    # chi_sq = stats.chisquare(pattern1)
+    # output parameters
+    print(img_name1,img_name2)
+    print('p_coef is: ', p_coef)
+    print('t_test score is: ', t_test[0],t_test[1])
+    # print('distance score is: ',dist)
+    print('distance score is: ', dist/100000000)
+
+    # # save patterns
     # with open('training_database_pattern','a') as f:
     #     f.write(img_name+'\t')
     #     for item in pattern:
