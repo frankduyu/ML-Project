@@ -12,6 +12,7 @@ class Image:
         self.IMG_LEN = 0
         self.IMG_WID = 0
         self.image = []
+        self.pattern = []
         self.img_lbp = []
 
     def _img_show(self):
@@ -35,27 +36,19 @@ class Image:
                     bin_num = bin_num * 2
             img_lbp_1d.append(bin_num)
         # reshape image
-        self.img_lbp = np.reshape(img_lbp_1d, (int(len(img_lbp_1d)/self.IMG_WID), self.IMG_WID))
-        # show LBP
-        self._img_show()
+        self.img_lbp = np.reshape(img_lbp_1d, (int(len(img_lbp_1d) / self.IMG_WID), self.IMG_WID))
+        # self._img_show()
 
-    def extract_histogram(self, K = 3):
-        step_len = int(self.IMG_LEN // K)
-        step_wid = int(self.IMG_WID // K)
-        hist = []
-        # Hist Initialization
-        for i in range(K**2):
-            for j in range(256):
-                hist.append(0)
-        print(len(hist))
-        for i in range(step_len * K):
-            for j in range(step_wid * K):
-                index = (j // step_wid) + (i // step_len) * K
-                # print(index, self.img_lbp[i][j], i, j)
+    def _hist_pattern(self, k = 3):
+        sep_len = (self.IMG_LEN-2)//k
+        sep_wid = self.IMG_WID//k
+        hist = np.zeros(256*(k**2))
+        for i in range(sep_len*k):
+            for j in range(sep_wid*k):
+                index = (j // sep_wid) + (i // sep_len) * k
                 index = index * 256 + int(self.img_lbp[i][j])
                 hist[index] = hist[index] + 1
-        return hist
-
+        self.pattern = hist
 
     def pattern_return(self, img_name):
         # parameter initial
@@ -64,9 +57,20 @@ class Image:
         self.IMG_LEN = len(self.image)
         self.IMG_WID = len(self.image[0])
         self._img_pre()
+        self._hist_pattern()
+        return self.pattern
 
 
 if __name__ == "__main__":
     img = Image()
-    img.pattern_return('test.png')
-    print(img.extract_histogram())
+    img_name = '000001.jpg'
+    pattern = img.pattern_return(img_name)
+    # with open('training_database_pattern','a') as f:
+    #     f.write(img_name+'\t')
+    #     for item in pattern:
+    #         f.write(str(int(item))+' ')
+    #     f.write('\n')
+
+
+
+
