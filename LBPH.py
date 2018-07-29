@@ -39,6 +39,24 @@ class Image:
         # show LBP
         self._img_show()
 
+    def extract_histogram(self, K = 3):
+        step_len = int(self.IMG_LEN // K)
+        step_wid = int(self.IMG_WID // K)
+        hist = []
+        # Hist Initialization
+        for i in range(K**2):
+            for j in range(256):
+                hist.append(0)
+        print(len(hist))
+        for i in range(step_len * K):
+            for j in range(step_wid * K):
+                index = (j // step_wid) + (i // step_len) * K
+                # print(index, self.img_lbp[i][j], i, j)
+                index = index * 256 + int(self.img_lbp[i][j])
+                hist[index] = hist[index] + 1
+        return hist
+
+
     def pattern_return(self, img_name):
         # parameter initial
         self.image = mpimg.imread(img_name)
@@ -50,8 +68,5 @@ class Image:
 
 if __name__ == "__main__":
     img = Image()
-    img.pattern_return('000001.jpg')
-
-
-
-
+    img.pattern_return('test.png')
+    print(img.extract_histogram())
