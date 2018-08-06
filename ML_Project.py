@@ -6,12 +6,13 @@ Description: CS 542 Course Project, Face Recognition Algorithm.
 
 from LBPH import *
 from face_detection import *
+import sys
 
 
 def main():
     img = Image()
     face_detect = FaceDetect(img)
-    face_detect.face_detect('test_data/people_4.png')
+    face_detect.face_detect('test_data/' + sys.argv[1])
 
 
 if __name__ == "__main__":
