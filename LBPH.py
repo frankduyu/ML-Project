@@ -7,7 +7,6 @@ Part 1: Image Processing to Pattern through LBPH Algorithm.
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.patches as patches
-from PIL import Image
 import numpy as np
 import pickle
 
@@ -72,7 +71,7 @@ class Image:
         else:
             pass
 
-    def _slid_wind(self, interval=4, win_end=24):
+    def _slid_wind(self, interval=4, win_end=60):
         img_lbp = self.img_lbp
         win_len = len(img_lbp)
         win_wid = len(img_lbp[0])
@@ -121,7 +120,7 @@ class Image:
         hist = self._normalize(hist)
         return hist
 
-    def _draw_crops(self, raw_image, crops):
+    def _draw_crops(self, crops):
         im = self.image
         fig, ax = plt.subplots(1)
         ax.imshow(im)
@@ -132,11 +131,11 @@ class Image:
 
     def pattern_return(self, img_name):
         # parameter initial
-        color_image = mpimg.imread(img_name)
-        self.image = np.dot(color_image[..., :3], [0.2989, 0.5870, 0.1140])
+        self.image = mpimg.imread(img_name)
+        self.image = np.dot(self.image[..., :3], [0.2989, 0.5870, 0.1140])
         self.IMG_LEN = len(self.image)
         self.IMG_WID = len(self.image[0])
         self._img_pre()
         crops = self._slid_wind()
         if crops != []:
-            self._draw_crops(img_name, crops)
+            self._draw_crops(crops)
