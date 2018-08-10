@@ -67,9 +67,9 @@ class Image:
 
         if test_prob >= self.prob_bar:
             print("This is a face")
-            return 1
+            return test_prob
         else:
-            pass
+            return 0
 
     def _slid_wind(self, interval=4, win_end=60):
         img_lbp = self.img_lbp
@@ -78,6 +78,7 @@ class Image:
         win_side = min(win_wid, win_len)
         moving_step = win_side // interval
         crops = []
+        proba = []
 
         if self._face_detect(self._hist_pattern(img_lbp)) == 1:
             crops.append([0, 0, win_len, win_wid])
@@ -88,13 +89,16 @@ class Image:
                 for j in range(0, int(win_wid - win_side), moving_step):
                     win_data = img_lbp[i: int(i + win_side), j: int(j + win_side)]
                     filter_patt = self._hist_pattern(win_data)
-                    if self._face_detect(filter_patt) == 1:
+                    test_prob = self._face_detect(filter_patt)
+                    if test_prob > self.prob_bar:
                         crops.append([i, j, win_side, win_side])
+                        proba.append(test_prob)
                         # img_lbp[i: int(i + win_side), j: int(j + win_side)] = 0
 
             win_side = win_side * interval / (interval + 1)
             moving_step = int(win_side // interval)
 
+        crops = crops[proba.index(max(proba))]
         return crops
 
     def _normalize(self, face_candidate):
@@ -124,9 +128,9 @@ class Image:
         im = self.image
         fig, ax = plt.subplots(1)
         ax.imshow(im)
-        for item in crops:
-            rect = patches.Rectangle((item[0], item[1]), item[2], item[3], linewidth=1, edgecolor='r', facecolor='none')
-            ax.add_patch(rect)
+        # for item in crops:
+        rect = patches.Rectangle((crops[0], crops[1]), crops[2], crops[3], linewidth=1, edgecolor='r', facecolor='none')
+        ax.add_patch(rect)
         plt.show()
 
     def pattern_return(self, img_name):
